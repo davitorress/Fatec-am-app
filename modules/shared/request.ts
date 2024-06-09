@@ -4,7 +4,6 @@ import { HttpMethods, RequestProps } from "./types"
 export const request = async ({
   url,
   body,
-  token,
   params,
   xml = false,
   stringifyBody = true,
@@ -26,10 +25,6 @@ export const request = async ({
 
   headers.append("Accept", "application/json")
   headers.append("Content-Type", formDataBody ? "multipart/form-data" : "application/json")
-
-  if (token) {
-    headers.append("Authorization", token)
-  }
 
   const requestBody = body && stringifyBody && !formDataBody ? JSON.stringify(body) : body
 

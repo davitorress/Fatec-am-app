@@ -6,6 +6,7 @@ import { DocumentPickerAsset, getDocumentAsync } from "expo-document-picker"
 import { Button, ScrollView, StyleSheet, Text, TextInput, View } from "react-native"
 
 import useAlgorithmStore, { AlgorithmData, AlgorithmName } from "@/storage/algorithm"
+import { useAlgorithm } from "@/modules/algorithm/queries"
 
 const styles = StyleSheet.create({
   container: {
@@ -55,6 +56,7 @@ type AlgorithmDataType = Partial<Omit<AlgorithmData, "document">> | undefined
 
 export default function HomeScreen() {
   const router = useRouter()
+  const algorithmFn = useAlgorithm()
   const { setName, setData } = useAlgorithmStore().actions
 
   const [algorithm, setAlgorithm] = useState<AlgorithmName>("knn")
@@ -103,7 +105,9 @@ export default function HomeScreen() {
     }
 
     setName(algorithm)
-    router.push("result")
+    algorithmFn.mutate({} as any, {
+      onSuccess: () => router.push("result"),
+    })
   }
 
   return (

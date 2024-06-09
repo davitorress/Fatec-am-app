@@ -13,15 +13,23 @@ export interface AlgorithmData {
   populationSize: number
 }
 
+export interface AlgorithmResult {
+  accuracy?: number
+  algorithm?: string
+  individual?: number[]
+}
+
 interface AlgorithmStoreProps {
   name: AlgorithmName
   data?: Partial<AlgorithmData>
+  result?: AlgorithmResult
 }
 
 interface AlgorithmStoreActions {
   clearState: () => void
   setName: (name: AlgorithmName) => void
   setData: (data: Partial<AlgorithmData>) => void
+  setResult: (result: AlgorithmResult) => void
 }
 
 type AlgorithmStore = AlgorithmStoreProps & {
@@ -31,6 +39,7 @@ type AlgorithmStore = AlgorithmStoreProps & {
 const initialState: AlgorithmStoreProps = {
   name: "knn",
   data: undefined,
+  result: undefined,
 }
 
 const useAlgorithmStore = create<AlgorithmStore>((set, get) => ({
@@ -45,6 +54,10 @@ const useAlgorithmStore = create<AlgorithmStore>((set, get) => ({
     setData: (data) => {
       if (data === get().data) return
       set({ data })
+    },
+    setResult: (result) => {
+      if (result === get().result) return
+      set({ result })
     },
   },
 }))
