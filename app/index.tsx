@@ -5,8 +5,8 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { DocumentPickerAsset, getDocumentAsync } from "expo-document-picker"
 import { Button, ScrollView, StyleSheet, Text, TextInput, View } from "react-native"
 
-import useAlgorithmStore, { AlgorithmData, AlgorithmName } from "@/storage/algorithm"
 import { useAlgorithm } from "@/modules/algorithm/queries"
+import { AlgorithmData, AlgorithmName } from "@/storage/algorithm"
 
 const styles = StyleSheet.create({
   container: {
@@ -52,12 +52,11 @@ const styles = StyleSheet.create({
 })
 
 type MutationRate = 1 | 3 | 5
-type AlgorithmDataType = Partial<Omit<AlgorithmData, "document">> | undefined
+type AlgorithmDataType = Partial<AlgorithmData> | undefined
 
 export default function HomeScreen() {
   const router = useRouter()
   const algorithmFn = useAlgorithm()
-  const { setName, setData } = useAlgorithmStore().actions
 
   const [algorithm, setAlgorithm] = useState<AlgorithmName>("knn")
   const [mutationRate, setMutationRate] = useState<MutationRate>(1)
@@ -80,34 +79,22 @@ export default function HomeScreen() {
     })
 
     if (!document.canceled) {
-      console.log("dataset", document.assets[0])
       setDataset(document.assets[0])
+      setAlgorithmData({ ...algorithmData, document: document.assets[0] })
     }
   }
 
   const handleStartAlgorithm = () => {
-    if (algorithm === "genetic_algorithm") {
-      if (!algorithmData) {
-        throw new Error("Preencha as informações do algoritmo genético")
-      }
-
-      setData({
-        ...algorithmData,
-      })
-    } else {
-      if (!dataset) {
-        throw new Error("Escolha uma base de dados válida")
-      }
-
-      setData({
-        document: dataset,
-      })
+    if (!algorithmData || (!dataset && algorithm !== "genetic_algorithm")) {
+      throw new Error("Escolha uma base de dados ou preencha as informações do algoritmo")
     }
 
-    setName(algorithm)
-    algorithmFn.mutate({} as any, {
-      onSuccess: () => router.push("result"),
-    })
+    algorithmFn.mutate(
+      { name: algorithm, data: algorithmData },
+      {
+        onSuccess: () => router.push("result"),
+      }
+    )
   }
 
   return (
@@ -212,7 +199,10 @@ export default function HomeScreen() {
           ) : (
             <View>
               <Text style={styles.label}>Escolha um banco de dados:</Text>
-              <Button title="Escolher banco de dados" onPress={chooseDataset} />
+              <Button
+                onPress={chooseDataset}
+                title={dataset ? "Alterar base de dados" : "Escolher banco de dados"}
+              />
             </View>
           )}
 

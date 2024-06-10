@@ -1,22 +1,29 @@
 import { useMutation } from "@tanstack/react-query"
 
 import { request } from "../shared/request"
-import useAlgorithmStore from "@/storage/algorithm"
+import useAlgorithmStore, { AlgorithmData, AlgorithmName } from "@/storage/algorithm"
 
 export const useAlgorithm = () => {
   const {
-    name,
-    data,
-    actions: { setResult },
+    actions: { setName, setData, setResult },
   } = useAlgorithmStore()
 
-  const mutation = async () => {
+  const mutation = async ({
+    name,
+    data,
+  }: {
+    name: AlgorithmName
+    data: Partial<AlgorithmData>
+  }) => {
+    setName(name)
+    setData(data)
+
     const formData = new FormData()
     formData.append("name", name)
     formData.append("dataset", {
       type: "text/csv",
-      uri: data?.document?.uri,
-      name: data?.document?.name,
+      uri: data.document?.uri,
+      name: data.document?.name,
       lastModified: new Date().getTime(),
     } as any)
 
@@ -56,7 +63,6 @@ export const useAlgorithm = () => {
   return useMutation({
     mutationFn: mutation,
     onSuccess: (data) => {
-      console.log(data)
       setResult(data)
     },
   })

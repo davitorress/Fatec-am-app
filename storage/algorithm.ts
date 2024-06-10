@@ -14,6 +14,8 @@ export interface AlgorithmData {
 }
 
 export interface AlgorithmResult {
+  name: string
+  image?: string
   accuracy?: number
   algorithm?: string
   individual?: number[]
